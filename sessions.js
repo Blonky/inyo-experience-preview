@@ -32,3 +32,9 @@ document.addEventListener('change',async e=>{
  try{const url=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});photo.src=url;await photo.decode();if(request!==fitPhotoRequest||state.current!==23||showcaseState.exploration!=='fit'||showcaseState.round!==0){return;}fitPhotoUrl=url;explorations.fit.rounds[0].options[0]=['My own fit','From my camera roll.'];explorations.fit.rounds[0].chosen=[0];renderExploration();announce('Your outfit is ready.');}
  catch{if(status.isConnected)status.textContent='That photo couldn’t open. Try another one.';}
 });
+
+function sessionKeepsake(kind,collection){
+ const selected=collection.flatMap((r,round)=>r.chosen.map(i=>({label:r.options[i][0],round,index:i})));
+ if(kind==='future')return `<div class="session-keepsake future-keepsake"><div class="keepsake-label">INYO / POSTCARDS FROM LATER</div><div class="saved-postcards">${collection.map((r,i)=>`<div>${r.chosen.length?worldArt(i*2+r.chosen[0]):'<span class="open-postcard">still open</span>'}</div>`).join('')}</div><h3>A few things worth keeping.</h3><p>${selected.map(s=>s.label).join(' · ')}</p><small>A possibility, not a plan you have to stick to.</small></div>`;
+ return `<div class="session-keepsake friends-keepsake"><div class="keepsake-label">INYO / SMALL CIRCLE</div><div class="saved-table">${worldArt(2)}<span>there’s room for your kind of company.</span></div><h3>People. Plans. A little room.</h3><p>${selected.filter(s=>s.round===0).map(s=>s.label).join(' + ')||'The plan can wait.'}</p><small>${selected.find(s=>s.round===2)?.label||'Some things are easier to figure out together.'}</small></div>`;
+}
